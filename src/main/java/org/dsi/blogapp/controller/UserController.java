@@ -31,7 +31,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable int userId) {
-        userService.softDeleteUser(userId);
+        userService.hardDeleteUser(userId);
         return new ResponseEntity<>( new ApiResponse("User deleted Successfully for ID: "+userId, true),
                 HttpStatus.OK);
     }

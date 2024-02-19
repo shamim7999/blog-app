@@ -5,6 +5,7 @@ import org.dsi.blogapp.exception.ResourceNotFoundException;
 import org.dsi.blogapp.model.User;
 import org.dsi.blogapp.payload.UserDto;
 import org.dsi.blogapp.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +15,10 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    private final ModelMapper modelMapper;
+    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     public UserDto createUser(UserDto userDto) {
@@ -33,37 +35,32 @@ public class UserService {
 
         user.setAbout(userDto.getAbout());
 
-        user.setPassword(user.getPassword());
+        user.setPassword(userDto.getPassword());
 
         return userToUserDto(userRepository.save(user));
     }
 
     public UserDto getUserById(int userDtoId) {
-        return userToUserDto(userRepository.findById(userDtoId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userDtoId)));
+        return userToUserDto(userRepository.findById(userDtoId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userDtoId)));
     }
 
     public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-
-        return users.stream()
+        return userRepository.findAll().stream()
                 .map(this::userToUserDto)
                 .collect(Collectors.toList());
     }
 
-    public void softDeleteUser(int userId) {
+    public void hardDeleteUser(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         userRepository.delete(user);
     }
 
     public User userDtoToUser(UserDto userDto) {
-        return new User(userDto.getId(), userDto.getName(), userDto.getEmail(),
-                userDto.getPassword(), userDto.getAbout());
+        return modelMapper.map(userDto, User.class);
     }
 
     private UserDto userToUserDto(User user) {
-        return new UserDto(user.getId(), user.getName(),
-                user.getEmail(), user.getPassword(), user.getAbout());
+        return modelMapper.map(user, UserDto.class);
     }
 }
