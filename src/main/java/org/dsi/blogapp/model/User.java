@@ -1,5 +1,6 @@
 package org.dsi.blogapp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
