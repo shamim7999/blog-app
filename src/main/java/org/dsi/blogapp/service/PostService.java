@@ -35,30 +35,40 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
+    public PostDto postToPostDto(Post post) {
+        PostDto postDto = modelMapper.map(post, PostDto.class);
+        postDto.setCategoryDto(modelMapper.map(post.getCategory(), CategoryDto.class));
+        postDto.setUserDto(modelMapper.map(post.getUser(), UserDto.class));
+
+        return postDto;
+    }
+
+    public Post postDtoToPost(PostDto postDto) {
+        Post post = modelMapper.map(postDto, Post.class);
+        post.setImageName("default.png");
+        post.setLocalDateTime(LocalDateTime.now());
+        return post;
+    }
+
     public PostDto createPost(PostDto postDto, int userId, int categoryId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
-        Post post = modelMapper.map(postDto, Post.class);
+        Post post = postDtoToPost(postDto);
         post.setCategory(category);
         post.setUser(user);
-        post.setImageName("default.png");
-        post.setLocalDateTime(LocalDateTime.now());
-
-        post = postRepository.save(post);
-
-        postDto = modelMapper.map(post, PostDto.class);
-        postDto.setCategoryDto(modelMapper.map(post.getCategory(), CategoryDto.class));
-        postDto.setUserDto(modelMapper.map(post.getUser(), UserDto.class));
-
-        return postDto;
-        //return modelMapper.map(postRepository.save(post), PostDto.class);
+        return postToPostDto(postRepository.save(postDtoToPost(postDto)));
     }
 
     public PostDto updatePost(PostDto postDto, int postId) {
-        return null;
+        Post post = postRepository.findById(postId)
+                .orElseThrow( () -> new ResourceNotFoundException("Post", "id", postId));
+        post.setTitle(postDto.getTitle());
+        post.setContent(postDto.getContent());
+        postRepository.save(post);
+        return postToPostDto(post);
     }
     public void hardDeletePost(int postId) {
         postRepository.delete(postRepository.findById(postId)
@@ -67,33 +77,28 @@ public class PostService {
     public List<PostDto> getAllPost() {
         return postRepository.findAll()
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(this::postToPostDto)
                 .collect(Collectors.toList());
     }
     public PostDto getPostById(int postId) {
-        return modelMapper.map(postRepository.findById(postId).orElseThrow(() ->
-                                new ResourceNotFoundException("Post", "id", postId)
-                        ),
-                PostDto.class);
+        return postToPostDto(postRepository.findById(postId).orElseThrow(() ->
+                new ResourceNotFoundException("Post", "id", postId)));
     }
     public List<PostDto> getPostsByCategory(int categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow( () -> new ResourceNotFoundException("Category", "id", categoryId) );
         return postRepository.findByCategory(category)
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(this::postToPostDto)
                 .collect(Collectors.toList());
     }
     public List<PostDto> getPostsByUser(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        return postRepository.findByUser(user).stream().map(post -> {
-            PostDto postDto = modelMapper.map(post, PostDto.class);
-            postDto.setCategoryDto(modelMapper.map(post.getCategory(), CategoryDto.class));
-            postDto.setUserDto(modelMapper.map(post.getUser(), UserDto.class));
-            return postDto;
-        }).collect(Collectors.toList());
+        return postRepository.findByUser(user).stream()
+                .map(this::postToPostDto)
+                .collect(Collectors.toList());
     }
 
 }
