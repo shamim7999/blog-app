@@ -11,6 +11,9 @@ import org.dsi.blogapp.repository.CategoryRepository;
 import org.dsi.blogapp.repository.PostRepository;
 import org.dsi.blogapp.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -74,8 +77,11 @@ public class PostService {
         postRepository.delete(postRepository.findById(postId)
                 .orElseThrow( () -> new ResourceNotFoundException("Post", "id", postId)));
     }
-    public List<PostDto> getAllPost() {
-        return postRepository.findAll()
+    public List<PostDto> getAllPost(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        //Page<Post> page = postRepository.findAll(pageable);
+
+        return postRepository.findAll(pageable)
                 .stream()
                 .map(this::postToPostDto)
                 .collect(Collectors.toList());
