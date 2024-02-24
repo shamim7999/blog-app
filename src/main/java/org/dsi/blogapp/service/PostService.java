@@ -2,9 +2,11 @@ package org.dsi.blogapp.service;
 
 import org.dsi.blogapp.exception.ResourceNotFoundException;
 import org.dsi.blogapp.model.Category;
+import org.dsi.blogapp.model.Comment;
 import org.dsi.blogapp.model.Post;
 import org.dsi.blogapp.model.User;
 import org.dsi.blogapp.payload.CategoryDto;
+import org.dsi.blogapp.payload.CommentDto;
 import org.dsi.blogapp.payload.PostDto;
 import org.dsi.blogapp.payload.UserDto;
 import org.dsi.blogapp.repository.CategoryRepository;
@@ -41,7 +43,10 @@ public class PostService {
         PostDto postDto = modelMapper.map(post, PostDto.class);
         postDto.setCategoryDto(modelMapper.map(post.getCategory(), CategoryDto.class));
         postDto.setUserDto(modelMapper.map(post.getUser(), UserDto.class));
-
+        for(Comment comment : post.getComments()) {
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            postDto.getCommentDtos().add(commentDto);
+        }
         return postDto;
     }
 

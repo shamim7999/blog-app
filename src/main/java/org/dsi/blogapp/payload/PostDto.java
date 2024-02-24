@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.dsi.blogapp.model.Category;
-import org.dsi.blogapp.model.User;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +20,5 @@ public class PostDto {
     private LocalDateTime localDateTime;
     private CategoryDto categoryDto;
     private UserDto userDto;
+    private List<CommentDto> commentDtos = new ArrayList<>();
 }

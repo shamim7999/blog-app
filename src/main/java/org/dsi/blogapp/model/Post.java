@@ -34,5 +34,5 @@ public class Post {
     private Category category;
 
     @OneToMany(mappedBy = "post")
-    private List<Comment> comment = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 }
