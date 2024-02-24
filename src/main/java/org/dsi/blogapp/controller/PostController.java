@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -29,10 +30,10 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<List<PostDto>> getAllPosts(@RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
-                                                     @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
+    public ResponseEntity<List<PostDto>> getAllPosts(@RequestParam(required = false) Optional<Integer> pageNumber,
+                                                     @RequestParam(required = false) Optional<Integer> pageSize) {
         return new ResponseEntity<>(
-                postService.getAllPost(pageNumber - 1, pageSize),
+                postService.getAllPost(pageNumber.orElse(1)-1, pageSize.orElse(5)),
                 HttpStatus.OK
         );
     }
