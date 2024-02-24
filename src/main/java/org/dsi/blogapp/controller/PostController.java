@@ -1,12 +1,15 @@
 package org.dsi.blogapp.controller;
 
+import org.dsi.blogapp.model.Post;
 import org.dsi.blogapp.payload.ApiResponse;
 import org.dsi.blogapp.payload.PostDto;
 import org.dsi.blogapp.service.PostService;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +34,12 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<List<PostDto>> getAllPosts(@RequestParam(required = false) Optional<Integer> pageNumber,
-                                                     @RequestParam(required = false) Optional<Integer> pageSize) {
+                                                     @RequestParam(required = false) Optional<Integer> pageSize,
+                                                     @RequestParam(required = false) Optional<String> sortBy ) {
         return new ResponseEntity<>(
-                postService.getAllPost(pageNumber.orElse(1)-1, pageSize.orElse(5)),
+                postService.getAllPost(pageNumber.orElse(1)-1,
+                        pageSize.orElse(2),
+                        Sort.by(sortBy.orElse("category_id")).descending()),
                 HttpStatus.OK
         );
     }
@@ -60,5 +66,13 @@ public class PostController {
         postService.hardDeletePost(postId);
         return new ResponseEntity<>(new ApiResponse("Post for Post Id: "+postId+" Deleted.", true),
                 HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/title/search")
+    public ResponseEntity<List<PostDto>> getPostsByTitleContaining(@RequestParam String keyword) {
+        return new ResponseEntity<>(
+                new ArrayList<>(postService.findByTitleContaining(keyword)),
+                HttpStatus.OK
+        );
     }
 }

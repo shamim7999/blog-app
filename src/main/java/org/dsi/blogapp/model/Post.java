@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(length = 20, nullable = false)
+    @Column(length = 100, nullable = false)
     private String title;
     @Column(length = 100, nullable = false)
     private String content;
@@ -30,4 +32,7 @@ public class Post {
     private User user;
     @ManyToOne
     private Category category;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comment = new ArrayList<>();
 }

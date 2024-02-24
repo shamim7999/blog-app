@@ -11,13 +11,12 @@ import org.dsi.blogapp.repository.CategoryRepository;
 import org.dsi.blogapp.repository.PostRepository;
 import org.dsi.blogapp.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +61,7 @@ public class PostService {
         Post post = postDtoToPost(postDto);
         post.setCategory(category);
         post.setUser(user);
-        return postToPostDto(postRepository.save(postDtoToPost(postDto)));
+        return postToPostDto(postRepository.save(post));
     }
 
     public PostDto updatePost(PostDto postDto, int postId) {
@@ -77,10 +76,8 @@ public class PostService {
         postRepository.delete(postRepository.findById(postId)
                 .orElseThrow( () -> new ResourceNotFoundException("Post", "id", postId)));
     }
-    public List<PostDto> getAllPost(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        //Page<Post> page = postRepository.findAll(pageable);
-
+    public List<PostDto> getAllPost(int pageNumber, int pageSize, Sort sortBy) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortBy);
         return postRepository.findAll(pageable)
                 .stream()
                 .map(this::postToPostDto)
@@ -107,4 +104,9 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    public List<PostDto> findByTitleContaining(String keyword) {
+        return postRepository.findByTitleContaining("%"+keyword+"%").stream()
+                .map(this::postToPostDto)
+                .collect(Collectors.toList());
+    }
 }
