@@ -43,10 +43,12 @@ public class PostService {
         PostDto postDto = modelMapper.map(post, PostDto.class);
         postDto.setCategoryDto(modelMapper.map(post.getCategory(), CategoryDto.class));
         postDto.setUserDto(modelMapper.map(post.getUser(), UserDto.class));
-        for(Comment comment : post.getComments()) {
-            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-            postDto.getCommentDtos().add(commentDto);
-        }
+        postDto.setCommentDtos(
+                post.getComments().stream()
+                        .map(comment -> modelMapper.map(comment, CommentDto.class))
+                        .collect(Collectors.toList())
+        );
+
         return postDto;
     }
 
